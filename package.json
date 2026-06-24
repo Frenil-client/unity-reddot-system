@@ -1,0 +1,21 @@
+{
+  "name": "com.frenil.reddot-system",
+  "version": "1.0.0",
+  "displayName": "RedDot System",
+  "description": "트리 구조 기반 레드닷(신규 알림) 시스템. enum 노드 타입, 자식→부모 자동 전파, Locked 상태, 카운트 아이콘(9+/99+/999+) 지원.",
+  "unity": "2021.3",
+  "keywords": [
+    "ui",
+    "reddot",
+    "notification",
+    "tree"
+  ],
+  "dependencies": {
+    "com.unity.textmeshpro": "3.0.6"
+  },
+  "author": {
+    "name": "정휘현 (Frenil)",
+    "email": "silsen@naver.com",
+    "url": "https://github.com/Frenil-client"
+  }
+}
