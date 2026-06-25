@@ -106,6 +106,34 @@ Example/
 └─ RedDotExample.cs       사용 예시
 ```
 
+## 설치
+
+### UPM (Package Manager) — 권장
+`Window ▸ Package Manager ▸ + ▸ Add package from git URL` 에 입력:
+
+```
+https://github.com/Frenil-client/unity-reddot-system.git
+```
+
+또는 `Packages/manifest.json` 에 직접 추가:
+
+```json
+"com.frenil.reddot-system": "https://github.com/Frenil-client/unity-reddot-system.git"
+```
+
+> TextMeshPro 의존(`RedDotCountIcon`). 프로젝트에 `com.unity.textmeshpro` 가 있어야 합니다.
+
+### 드롭인
+`Runtime/` 폴더를 프로젝트 `Assets/` 아래에 복사합니다.
+
+### 샘플
+Package Manager에서 이 패키지를 선택 → **Samples ▸ Import** (원본: `Samples~/RedDotExample`).
+
+## 테스트
+
+`Window ▸ General ▸ Test Runner ▸ EditMode ▸ Run All`
+(`com.unity.test-framework` 필요 · EditMode 테스트 7종 — RedDotNode 트리 전파/Lock/콜백)
+
 ## 요구 사항
 
 - Unity 2021.3+

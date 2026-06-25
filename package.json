@@ -17,5 +17,12 @@
     "name": "정휘현 (Frenil)",
     "email": "silsen@naver.com",
     "url": "https://github.com/Frenil-client"
-  }
+  },
+  "samples": [
+    {
+      "displayName": "RedDot Usage Example",
+      "description": "트리 등록 / 값 설정 / 전파 사용 예시",
+      "path": "Samples~/RedDotExample"
+    }
+  ]
 }
