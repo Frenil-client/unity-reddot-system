@@ -15,7 +15,7 @@ namespace RedDotSystem.Example
             // 패키지 상품 신규 도착
             manager.SetValue(RedDotType.ShopPackage, true);
 
-            // ShopPackage true → Shop 자동 true → MainMenu 자동 true
+            // ShopPackage true → Shop 자동 true → MainMenu 자동 true (읽기는 O(1))
             Debug.Log($"MainMenu : {manager.GetNode(RedDotType.MainMenu).Value}");    // True
             Debug.Log($"Shop     : {manager.GetNode(RedDotType.Shop).Value}");        // True
             Debug.Log($"Package  : {manager.GetNode(RedDotType.ShopPackage).Value}"); // True
@@ -24,6 +24,12 @@ namespace RedDotSystem.Example
             // 유저가 패키지 확인 → 레드닷 해제
             manager.SetValue(RedDotType.ShopPackage, false);
             Debug.Log($"해제 후 MainMenu: {manager.GetNode(RedDotType.MainMenu).Value}"); // False
+
+            // 카운트 - 부모에는 자식 합계가 집계됨 (RedDotCountIcon이 그대로 표시)
+            manager.SetCount(RedDotType.QuestDaily, 3);
+            manager.SetCount(RedDotType.QuestWeekly, 2);
+            Debug.Log($"Quest 카운트: {manager.GetNode(RedDotType.Quest).Count}");        // 5
+            Debug.Log($"MainMenu 카운트: {manager.GetNode(RedDotType.MainMenu).Count}");  // 5
 
             // 콘텐츠 미해금 — locked 상태에서는 자식이 true여도 표시 안 함
             manager.SetValue(RedDotType.CharacterLevelUp, true);

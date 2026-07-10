@@ -16,45 +16,50 @@ namespace RedDotSystem
         [SerializeField] protected GameObject _icon;
 
         private RedDotNode _node;
-        private bool _locked = false;
 
-        public bool Locked => _locked;
+        /// <summary>연결된 노드의 잠금 상태. 잠금은 노드가 단일 진실입니다.</summary>
+        public bool Locked => _node != null && _node.Locked;
 
         protected virtual void OnEnable()
         {
+            if (RedDotManager.Instance == null)
+            {
+                Debug.LogError($"[RedDot] RedDotManager가 씬에 없거나 아직 초기화되지 않았습니다. ({name})", this);
+                return;
+            }
+
             _node = RedDotManager.Instance.GetNode(_redDotType);
             if (_node != null)
             {
                 _node.AddCallback(OnNodeChanged);
-                OnNodeChanged(_node.Value);
+                OnNodeChanged(_node.Count);
             }
         }
 
         protected virtual void OnDisable()
         {
-            if (_node != null && RedDotManager.Instance != null)
+            if (_node != null)
                 _node.RemoveCallback(OnNodeChanged);
+            _node = null;
         }
 
         /// <summary>
-        /// 노드를 잠급니다. locked 상태에서는 레드닷이 표시되지 않습니다.
+        /// 연결된 노드를 잠급니다. 노드 상태이므로 같은 노드를 보는 모든 아이콘에 일괄 적용됩니다.
         /// </summary>
         public virtual void SetLocked(bool locked)
         {
-            _locked = locked;
-            if (_node != null)
-                OnNodeChanged(_node.Value);
+            _node?.SetLocked(locked);
         }
 
-        protected virtual void OnNodeChanged(bool isOn)
+        protected virtual void OnNodeChanged(int count)
         {
             if (_icon != null)
-                _icon.SetActive(!_locked && isOn);
+                _icon.SetActive(count > 0);
         }
 
         public virtual bool IsActive()
         {
-            return _icon != null && _icon.activeInHierarchy && !_locked;
+            return _icon != null && _icon.activeInHierarchy;
         }
     }
 }
