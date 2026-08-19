@@ -13,7 +13,9 @@ namespace RedDotSystem
     /// </summary>
     public class RedDotCountIcon : RedDotIcon
     {
-        [SerializeField] private TextMeshProUGUI _countText;
+        // RedDotIcon의 직렬화 필드와 같은 접근 수준. 코드로 UI를 구성하는 경우
+        // (런타임 생성, 에디터 툴) 파생 클래스가 참조를 채울 수 있어야 한다.
+        [SerializeField] protected TextMeshProUGUI _countText;
 
         protected override void OnNodeChanged(int count)
         {

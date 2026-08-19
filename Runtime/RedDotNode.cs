@@ -30,6 +30,19 @@ namespace RedDotSystem
         /// </summary>
         public int Count => _locked ? 0 : _selfCount + _childrenCount;
 
+        /// <summary>
+        /// 이 노드 자체의 카운트(자식 합계 제외). 잠금과 무관한 원값입니다.
+        /// "이 레드닷이 켜진 게 자기 값 때문인가 자식 때문인가"를 가리기 위한 진단용이며,
+        /// 디버거 창(Editor/RedDotDebuggerWindow)이 이 값을 표시합니다.
+        /// </summary>
+        public int SelfCount => _selfCount;
+
+        /// <summary>자식 서브트리의 실효 카운트 합(캐시된 값). SelfCount와 같은 진단 목적입니다.</summary>
+        public int ChildrenCount => _childrenCount;
+
+        /// <summary>자식 노드 목록(읽기 전용). 트리 시각화용입니다.</summary>
+        public IReadOnlyList<RedDotNode> Children => _children;
+
         /// <summary>레드닷 표시 여부 (Count > 0).</summary>
         public bool Value => Count > 0;
 
