@@ -6,6 +6,9 @@ namespace RedDotSystem
     /// RedDotNode와 연결해 아이콘 GameObject를 켜고 끄는 UI 컴포넌트.
     /// Inspector에서 RedDotType 드롭다운으로 연결할 노드를 직접 지정합니다.
     /// OnEnable/OnDisable에서 콜백을 자동으로 등록/해제합니다.
+    ///
+    /// 트리는 RedDotTree가 첫 접근 시 구성하므로, 씬에 RedDotManager가 있든 없든
+    /// 또 이 아이콘이 매니저보다 먼저 활성화되든 상관없이 항상 연결됩니다.
     /// </summary>
     public class RedDotIcon : MonoBehaviour
     {
@@ -22,18 +25,18 @@ namespace RedDotSystem
 
         protected virtual void OnEnable()
         {
-            if (RedDotManager.Instance == null)
+            _node = RedDotTree.GetNode(_redDotType);
+
+            if (_node == null)
             {
-                Debug.LogError($"[RedDot] RedDotManager가 씬에 없거나 아직 초기화되지 않았습니다. ({name})", this);
+                Debug.LogError(
+                    $"[RedDot] 미등록 타입: {_redDotType}. RedDotType enum에 정의된 값인지 확인하세요. ({name})",
+                    this);
                 return;
             }
 
-            _node = RedDotManager.Instance.GetNode(_redDotType);
-            if (_node != null)
-            {
-                _node.AddCallback(OnNodeChanged);
-                OnNodeChanged(_node.Count);
-            }
+            _node.AddCallback(OnNodeChanged);
+            OnNodeChanged(_node.Count);
         }
 
         protected virtual void OnDisable()

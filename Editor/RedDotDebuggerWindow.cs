@@ -87,13 +87,13 @@ namespace RedDotSystem.EditorTools
             DrawToolbar();
             DrawIssues();
 
-            var manager = Application.isPlaying ? RedDotManager.Instance : null;
-            DrawStatusBanner(manager);
-            DrawHeaderRow(manager != null);
+            bool live = Application.isPlaying;
+            DrawStatusBanner();
+            DrawHeaderRow(live);
 
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
             foreach (var root in _roots)
-                DrawEntry(root, manager);
+                DrawEntry(root, live);
             EditorGUILayout.EndScrollView();
         }
 
@@ -116,20 +116,13 @@ namespace RedDotSystem.EditorTools
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawStatusBanner(RedDotManager manager)
+        private void DrawStatusBanner()
         {
-            if (!Application.isPlaying)
-            {
-                EditorGUILayout.HelpBox(
-                    "구조 미리보기입니다. 실효 카운트와 잠금 상태는 플레이 중에만 표시됩니다.",
-                    MessageType.Info);
-            }
-            else if (manager == null)
-            {
-                EditorGUILayout.HelpBox(
-                    "씬에 RedDotManager가 없습니다. 값을 관찰하려면 RedDotManager 컴포넌트를 배치하세요.",
-                    MessageType.Warning);
-            }
+            if (Application.isPlaying) return;
+
+            EditorGUILayout.HelpBox(
+                "구조 미리보기입니다. 실효 카운트와 잠금 상태는 플레이 중에만 표시됩니다.",
+                MessageType.Info);
         }
 
         private void CollapseAll()
@@ -179,7 +172,7 @@ namespace RedDotSystem.EditorTools
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawEntry(RedDotTreeEntry entry, RedDotManager manager)
+        private void DrawEntry(RedDotTreeEntry entry, bool live)
         {
             if (!Matches(entry)) return;
 
@@ -188,7 +181,7 @@ namespace RedDotSystem.EditorTools
             // 검색 중에는 접힘 상태를 무시한다. 찾은 항목이 접힌 부모 아래 숨으면 검색이 무의미하다.
             bool expanded = searching || !_collapsed.Contains(entry.Type);
 
-            var node = manager != null ? manager.GetNode(entry.Type) : null;
+            var node = live ? RedDotTree.GetNode(entry.Type) : null;
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.Space(entry.Depth * IndentPerDepth);
@@ -212,7 +205,7 @@ namespace RedDotSystem.EditorTools
 
             DrawNodeLabel(entry, node);
 
-            if (manager != null)
+            if (live)
                 DrawLiveControls(entry, node);
 
             EditorGUILayout.EndHorizontal();
@@ -220,7 +213,7 @@ namespace RedDotSystem.EditorTools
             if (hasChildren && expanded)
             {
                 foreach (var child in entry.Children)
-                    DrawEntry(child, manager);
+                    DrawEntry(child, live);
             }
         }
 

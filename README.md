@@ -21,7 +21,8 @@
 RedDotType (enum)   노드 타입 정의 — 숫자 구간이 곧 계층, Inspector 드롭다운 지원
 RedDotHierarchy     enum 숫자 규칙 -> 부모 타입 유도 (순수 C#)
 RedDotNode          트리 노드 핵심 로직 (순수 C#, Unity 비의존)
-RedDotManager       노드 트리 초기화 및 관리 (MonoBehaviour Singleton)
+RedDotTree          트리 소유자 - 첫 접근 시 자동 구성 (순수 C#, 매니저 불필요)
+RedDotManager       씬 측 진입점 (선택 사항 - RedDotTree에 위임)
 RedDotIcon          아이콘 표시/숨김 UI 컴포넌트
 RedDotCountIcon     숫자 카운트 표시 UI 컴포넌트 (9+, 99+, 999+)
 
@@ -171,7 +172,8 @@ Runtime/
 ├─ RedDotType.cs          노드 타입 enum 정의 (숫자 구간 = 계층)
 ├─ RedDotHierarchy.cs     enum 숫자 규칙 -> 부모 유도 (순수 C#)
 ├─ RedDotNode.cs          트리 노드 (순수 C#)
-├─ RedDotManager.cs       노드 트리 관리 매니저
+├─ RedDotTree.cs          트리 소유자 · 지연 구성 (순수 C#)
+├─ RedDotManager.cs       씬 측 진입점 (선택 사항)
 ├─ RedDotIcon.cs          UI 컴포넌트 — 아이콘 표시/숨김
 └─ RedDotCountIcon.cs     UI 컴포넌트 — 숫자 카운트 표시
 Editor/
@@ -207,7 +209,7 @@ Package Manager에서 이 패키지를 선택 → **Samples ▸ Import** (원본
 ## 테스트
 
 `Window ▸ General ▸ Test Runner ▸ EditMode ▸ Run All`
-(`com.unity.test-framework` 필요 · EditMode 테스트 37종 — RedDotNode 카운트 집계/Lock/콜백/무결성, RedDotHierarchy 계층 유도, RedDotTreeModel 트리 구성/진단)
+(`com.unity.test-framework` 필요 · EditMode 테스트 47종 — RedDotNode 카운트 집계/Lock/콜백/무결성, RedDotHierarchy 계층 유도, RedDotTree 지연 구성, RedDotTreeModel 트리 구성/진단)
 
 ## CI
 
@@ -216,7 +218,7 @@ Package Manager에서 이 패키지를 선택 → **Samples ▸ Import** (원본
 | Job | 하는 일 | Unity 라이선스 |
 |---|---|---|
 | `core-build` | 트리 코어를 netstandard2.1 / C# 9 로 컴파일 | 불필요 |
-| `editmode-tests` | game-ci로 EditMode 테스트 37종 실행 | 필요 |
+| `editmode-tests` | game-ci로 EditMode 테스트 47종 실행 | 필요 |
 
 `core-build`는 컴파일 회귀를 잡는 동시에 "`RedDotNode` / `RedDotHierarchy`는 순수 C#이며
 Unity에 의존하지 않는다"는 위의 주장을 빌드로 강제한다. 이 두 파일에 UnityEngine 참조가

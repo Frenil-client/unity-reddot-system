@@ -1,23 +1,31 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace RedDotSystem
 {
     /// <summary>
-    /// RedDotNode 트리를 초기화하고 관리하는 매니저.
-    /// RedDotType enum을 키로 사용하며, 트리 계층은 enum 숫자 구간 규칙에서
-    /// 자동으로 유도됩니다(RedDotHierarchy). enum에 값만 추가하면 트리에 반영됩니다.
+    /// 레드닷 트리에 대한 씬 측 진입점입니다.
+    ///
+    /// 트리 자체는 <see cref="RedDotTree"/>가 소유하며 첫 접근 시 스스로 구성되므로,
+    /// 이 컴포넌트는 **선택 사항**입니다. 씬에 배치하지 않아도 아이콘과 값 설정은 동작한다.
+    /// 배치하는 이유는 두 가지뿐이다 — 인스펙터에서 눈에 보이는 진입점을 두고 싶을 때,
+    /// 그리고 코드에서 정적 API 대신 참조로 접근하고 싶을 때.
     ///
     /// 사용 예시:
-    ///   RedDotManager.Instance.SetValue(RedDotType.ShopPackage, true);
+    ///   RedDotTree.SetValue(RedDotType.ShopPackage, true);     // 매니저 없이
     ///   RedDotManager.Instance.SetCount(RedDotType.QuestDaily, 3);
     /// </summary>
     public class RedDotManager : MonoBehaviour
     {
         public static RedDotManager Instance { get; private set; }
 
-        private readonly Dictionary<RedDotType, RedDotNode> _nodes = new();
+        // 도메인 리로드를 끈 상태에서 플레이를 반복하면 정적 상태가 남는다.
+        // 런타임 진입 시점에 트리와 인스턴스를 비워 세션 간 오염을 막는다.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            Instance = null;
+            RedDotTree.Reset();
+        }
 
         private void Awake()
         {
@@ -26,29 +34,14 @@ namespace RedDotSystem
                 Destroy(gameObject);
                 return;
             }
+
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            BuildTree();
         }
 
-        /// <summary>
-        /// enum 전체를 등록하고 숫자 구간 규칙으로 부모-자식을 연결합니다.
-        /// 계층 정의는 RedDotType 숫자 규칙이 유일한 소스입니다.
-        /// </summary>
-        private void BuildTree()
+        private void OnDestroy()
         {
-            foreach (RedDotType type in Enum.GetValues(typeof(RedDotType)))
-            {
-                if (type == RedDotType.None) continue;
-                _nodes[type] = new RedDotNode(type);
-            }
-
-            foreach (var kv in _nodes)
-            {
-                var parentType = RedDotHierarchy.GetParentType(kv.Key);
-                if (parentType != RedDotType.None && _nodes.TryGetValue(parentType, out var parent))
-                    parent.AddChild(kv.Value);
-            }
+            if (Instance == this) Instance = null;
         }
 
         /// <summary>
@@ -56,29 +49,20 @@ namespace RedDotSystem
         /// </summary>
         public RedDotNode GetNode(RedDotType type)
         {
-            if (_nodes.TryGetValue(type, out var node))
-                return node;
+            var node = RedDotTree.GetNode(type);
+            if (node == null)
+                Debug.LogError($"[RedDot] 미등록 타입: {type}. RedDotType enum에 정의된 값인지 확인하세요.", this);
 
-            Debug.LogError($"[RedDot] 미등록 타입: {type}. RedDotType enum에 정의된 값인지 확인하세요.");
-            return null;
+            return node;
         }
 
         /// <summary>타입에 해당하는 노드 값을 설정합니다.</summary>
-        public void SetValue(RedDotType type, bool value)
-        {
-            GetNode(type)?.SetValue(value);
-        }
+        public void SetValue(RedDotType type, bool value) => GetNode(type)?.SetValue(value);
 
         /// <summary>타입에 해당하는 노드의 카운트를 설정합니다. 부모에는 자식 합계가 집계됩니다.</summary>
-        public void SetCount(RedDotType type, int count)
-        {
-            GetNode(type)?.SetCount(count);
-        }
+        public void SetCount(RedDotType type, int count) => GetNode(type)?.SetCount(count);
 
         /// <summary>타입에 해당하는 노드를 잠급니다. (콘텐츠 미해금 시 레드닷 숨김)</summary>
-        public void SetLocked(RedDotType type, bool locked)
-        {
-            GetNode(type)?.SetLocked(locked);
-        }
+        public void SetLocked(RedDotType type, bool locked) => GetNode(type)?.SetLocked(locked);
     }
 }

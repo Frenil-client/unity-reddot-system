@@ -1,5 +1,41 @@
 # Changelog
 
+## 트리 초기화를 Unity 생명주기에서 분리
+
+### 배경
+
+트리를 `RedDotManager`가 `Awake`에서 만들고, `RedDotIcon`은 `OnEnable`에서 그 트리를 찾았다.
+그런데 씬 로드 시 Unity는 오브젝트마다 Awake -> OnEnable을 이어서 호출하므로, 아이콘이
+매니저보다 먼저 처리되면 아이콘의 OnEnable 시점에 트리가 아직 없다. 이때 아이콘은 에러만
+남기고 어떤 노드에도 연결되지 못한 채 영구히 죽는다 — 재바인딩 경로가 없었기 때문이다.
+
+씬에서 오브젝트 순서를 바꾸거나 프리팹을 다른 위치에 배치하는 것만으로 재현됐다 사라졌다
+하는 종류의 버그라, 실제로 통합 데모를 프리팹으로 옮기는 과정에서 터졌다.
+
+### 변경 사항
+
+- `RedDotTree` 추가 — 트리의 실제 소유자이자 순수 C# 정적 서비스. **첫 접근 시점에**
+  **스스로 구성**되므로 누가 먼저 물어보든 준비되어 있다. 초기화 순서라는 개념이 사라진다
+- `RedDotIcon`이 매니저 대신 `RedDotTree`를 본다. 씬에 `RedDotManager`가 없어도 동작한다
+- `RedDotManager`는 **선택 사항**이 되었다. 인스펙터에 보이는 진입점이 필요하거나
+  참조로 접근하고 싶을 때만 배치하면 되며, 내부적으로 `RedDotTree`에 위임한다
+- 도메인 리로드를 끈 상태에서 플레이를 반복해도 정적 상태가 남지 않도록
+  `RuntimeInitializeOnLoadMethod`로 트리를 초기화한다
+- 트리 디버거 창도 매니저 의존을 제거했다
+
+### Breaking Changes
+
+없음. `RedDotManager.Instance.SetCount(...)` 같은 기존 호출은 그대로 동작한다.
+다만 이제 `RedDotTree.SetCount(...)`로 매니저 없이 부르는 쪽이 권장 경로다.
+
+### 검증
+
+`Tests/RedDotTreeTests.cs` 10종 추가 (레포 전체 37종 -> 47종). EditMode 테스트에는 씬도
+GameObject도 없으므로, **이 테스트들이 통과한다는 것 자체가 매니저 없이 동작한다는 증거**다.
+지연 구성, 부모 집계, 잠금 전파, Reset 격리, 미등록 타입 처리를 고정했다.
+
+---
+
 ## .meta 파일 추가 (UPM git 설치 대응)
 
 git URL로 설치하면 패키지가 immutable 폴더(Library/PackageCache)에 놓이는데, Unity는 여기에
