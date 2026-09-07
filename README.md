@@ -252,7 +252,7 @@ Unity Test Runner에서 도는 것과 정확히 같은 테스트입니다.
 **Core 빌드**는 "`RedDotNode` / `RedDotHierarchy` / `RedDotTree`는 순수 C#이며 Unity에
 의존하지 않는다"는 위의 주장을 빌드로 강제합니다. Manager / Icon 계열은 Unity 계층이라 제외합니다.
 
-### 왜 Unity EditMode 테스트를 CI에서 돌리지 않는가
+### Unity 없이 도는 CI를 고른 이유
 
 game-ci로 시도했지만 Unity Personal 라이선스는 `.ulf` 안에 MAC 주소와 머신 ID가 박힌
 **하드웨어 바인딩** 방식이라, 실행마다 새로 만들어지는 GitHub 러너에서는 활성화되지 않습니다.
